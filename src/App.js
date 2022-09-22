@@ -21,43 +21,61 @@ function getRandomInt(min, max) {
 
 export default function App() {
   const [word, setWord] = useState([]);
+  const [noAccent, setNoAccent] = useState([]);
   const [underscore, setUnderscore] = useState([]);
   const [clickEnabled, setClickEnabled] = useState(false);
+  const [mistakes, setMistakes] = useState(1);
+  const [img, setImg] = useState(Forca0);
 
   const wordIndex = getRandomInt(0, words.length);
 
-  function GenerateWord() {
+  function PickWord() {
     const correctWord = words[wordIndex];
-
     const wordArray = Array.from(correctWord);
 
-    const newArray = wordArray.map((l) => `_`);
+    let noAccentWord = correctWord.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    noAccentWord = Array.from(noAccentWord);
+    setNoAccent(noAccentWord);
+
+    const underscoreArray = wordArray.map((l) => `_`);
 
     setWord(wordArray);
-    setUnderscore(newArray);
+    setUnderscore(underscoreArray);
+
+    setClickEnabled(true);
   }
 
   function CheckLetter(letter) {
-    const newArray = [...word];
-    const underscoreArray = [...underscore];
+    const noAccentCopy = [...noAccent];
+    const underscoreCopy = [...underscore];
     letter = letter.toLowerCase();
     console.log(letter);
 
-    if (newArray.includes(letter)) {
-      newArray.map((l, index) => {
+    if (noAccentCopy.includes(letter)) {
+      noAccentCopy.map((l, index) => {
         if (letter === l) {
-          underscoreArray[index] = l;
+          underscoreCopy[index] = word[index];
         }
       });
+    } else {
+      setMistakes(mistakes + 1);
+      console.log(mistakes);
+      if (mistakes === 1) {
+        setImg(Forca1);
+      } else if (mistakes === 2) {
+        setImg(Forca2);
+      } else if (mistakes === 3) {
+        setImg(Forca3);
+      } else if (mistakes === 4) {
+        setImg(Forca4);
+      } else if (mistakes === 5) {
+        setImg(Forca5);
+      } else if (mistakes === 6) {
+        setImg(Forca6);
+      }
     }
 
-    setUnderscore(underscoreArray);
-  }
-
-  function PickWord() {
-    GenerateWord();
-
-    setClickEnabled(true);
+    setUnderscore(underscoreCopy);
   }
 
   function CreateLetter(props) {
@@ -80,7 +98,7 @@ export default function App() {
   return (
     <div className="background">
       <div className="top">
-        <img src={Forca0} />
+        <img src={img} alt="Forca" />
         <button
           className="pick-word"
           onClick={() => {
