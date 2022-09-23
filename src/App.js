@@ -27,9 +27,9 @@ export default function App() {
   const [img, setImg] = useState(Forca0);
   const [status, setStatus] = useState(true);
   const [clicked, setClicked] = useState([]);
-  const [enableClass, setEnableClass] = useState("disabled")
-  const [guess, setGuess] = useState('');
-  const [correct, setCorrect] = useState('');
+  const [enableClass, setEnableClass] = useState("disabled");
+  const [guess, setGuess] = useState("");
+  const [correct, setCorrect] = useState("");
   const [wordClass, setWordClass] = useState("black");
 
   const wordIndex = getRandomInt(0, words.length);
@@ -61,14 +61,22 @@ export default function App() {
 
   function CheckLetter(letter) {
     const noAccentCopy = [...noAccent];
-    const underscoreCopy = [...underscore];
+    let underscoreCopy = [...underscore];
 
     if (noAccentCopy.includes(letter)) {
+
       noAccentCopy.map((l, index) => {
         if (letter === l) {
           underscoreCopy[index] = word[index];
         }
       });
+
+      if (!underscoreCopy.includes(`_`)){
+        setWordClass("green");
+        setStatus(true);
+        setEnableClass("disabled");
+      }
+
     } else {
       setMistakes(mistakes + 1);
       console.log(mistakes);
@@ -84,6 +92,11 @@ export default function App() {
         setImg(Forca5);
       } else if (mistakes === 6) {
         setImg(Forca6);
+        setEnableClass("disabled");
+        setWordClass("red");
+        setStatus(true);
+
+        underscoreCopy = Array.from(correct);
       }
     }
 
@@ -94,7 +107,7 @@ export default function App() {
   }
 
   function CreateLetter(props) {
-    let letter = props.letter
+    let letter = props.letter;
     letter = letter.toLowerCase();
 
     return (
@@ -104,20 +117,20 @@ export default function App() {
           CheckLetter(letter);
         }}
         disabled={clicked.includes(letter) ? true : status}
+        data-identifier="letter"
       >
         {props.letter}
       </button>
     );
   }
 
-  function CheckGuess(){
+  function CheckGuess() {
     const guessCopy = guess.toLowerCase();
     const correctArray = Array.from(correct);
-    console.log(correct);
 
-    if (guessCopy === correct){
+    if (guessCopy === correct) {
       setWordClass("green");
-    }else{
+    } else {
       setWordClass("red");
       setImg(Forca6);
     }
@@ -125,26 +138,35 @@ export default function App() {
     setEnableClass("disabled");
     setStatus(true);
     setUnderscore(correctArray);
+    setGuess("");
   }
 
   return (
     <div className="background">
       <div className="top">
-        <img src={img} alt="Forca" />
-        <button className="pick-word" onClick={PickWord}>
+        <img src={img} alt="Forca" data-identifier="game-image"/>
+        <button className="pick-word" onClick={PickWord} data-identifier="choose-word">
           Escolher Palavra
         </button>
-        <h1 className={wordClass}>{underscore.map((l) => l)}</h1>
+        <h1 className={wordClass} data-identifier="word">{underscore.map((l) => l)}</h1>
       </div>
       <div className="keyboard">
         {letters.map((l, index) => (
-          <CreateLetter letter={l} key={index}/>
+          <CreateLetter letter={l} key={index} />
         ))}
       </div>
       <div className="guess">
         Já sei a palavra!
-        <input placeholder="Insira seu chute aqui. Ex: nação" disabled={status} onChange={(e) => setGuess(e.target.value)}></input>
-        <button disabled={status} onClick={CheckGuess}>Chutar</button>
+        <input
+          placeholder="Insira seu chute aqui. Ex: nação"
+          disabled={status}
+          value={guess}
+          onChange={(e) => setGuess(e.target.value)}
+          data-identifier="type-guess"
+        ></input>
+        <button disabled={status} onClick={CheckGuess} data-identifier="guess-button">
+          Chutar
+        </button>
       </div>
     </div>
   );
