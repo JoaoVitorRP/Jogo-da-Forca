@@ -1,7 +1,5 @@
 import { useState } from "react";
-
-import "./css/reset.css";
-import "./css/style.css";
+import styled from "styled-components";
 
 import Forca0 from "./assets/forca0.png";
 import Forca1 from "./assets/forca1.png";
@@ -12,6 +10,7 @@ import Forca5 from "./assets/forca5.png";
 import Forca6 from "./assets/forca6.png";
 import letters from "./letters";
 import words from "./words.js";
+import GlobalStyle from "./globalStyles";
 
 function getRandomInt(min, max) {
   min = Math.ceil(min);
@@ -27,10 +26,9 @@ export default function App() {
   const [img, setImg] = useState(Forca0);
   const [status, setStatus] = useState(true);
   const [clicked, setClicked] = useState([]);
-  const [enableClass, setEnableClass] = useState("disabled");
   const [guess, setGuess] = useState("");
   const [correct, setCorrect] = useState("");
-  const [wordClass, setWordClass] = useState("black");
+  const [wordColor, setWordColor] = useState("#000000");
 
   const wordIndex = getRandomInt(0, words.length);
 
@@ -51,12 +49,11 @@ export default function App() {
     setUnderscore(underscoreArray);
 
     setStatus(false);
-    setEnableClass("enabled");
 
     setMistakes(1);
     setImg(Forca0);
     setClicked([]);
-    setWordClass("black");
+    setWordColor("#000000");
   }
 
   function CheckLetter(letter) {
@@ -64,22 +61,16 @@ export default function App() {
     let underscoreCopy = [...underscore];
 
     if (noAccentCopy.includes(letter)) {
+      noAccentCopy.map((l, index) =>
+        letter === l ? (underscoreCopy[index] = word[index]) : null
+      );
 
-      noAccentCopy.map((l, index) => {
-        if (letter === l) {
-          underscoreCopy[index] = word[index];
-        }
-      });
-
-      if (!underscoreCopy.includes(`_`)){
-        setWordClass("green");
+      if (!underscoreCopy.includes(`_`)) {
+        setWordColor("#27ae60");
         setStatus(true);
-        setEnableClass("disabled");
       }
-
     } else {
       setMistakes(mistakes + 1);
-      console.log(mistakes);
       if (mistakes === 1) {
         setImg(Forca1);
       } else if (mistakes === 2) {
@@ -92,8 +83,7 @@ export default function App() {
         setImg(Forca5);
       } else if (mistakes === 6) {
         setImg(Forca6);
-        setEnableClass("disabled");
-        setWordClass("red");
+        setWordColor("#ff0000");
         setStatus(true);
 
         underscoreCopy = Array.from(correct);
@@ -111,8 +101,8 @@ export default function App() {
     letter = letter.toLowerCase();
 
     return (
-      <button
-        className={clicked.includes(letter) ? "disabled" : enableClass}
+      <LetterButton
+        status={clicked.includes(letter) ? true : status}
         onClick={() => {
           CheckLetter(letter);
         }}
@@ -120,7 +110,7 @@ export default function App() {
         data-identifier="letter"
       >
         {props.letter}
-      </button>
+      </LetterButton>
     );
   }
 
@@ -129,45 +119,170 @@ export default function App() {
     const correctArray = Array.from(correct);
 
     if (guessCopy === correct) {
-      setWordClass("green");
+      setWordColor("#27ae60");
     } else {
-      setWordClass("red");
+      setWordColor("#ff0000");
       setImg(Forca6);
     }
 
-    setEnableClass("disabled");
     setStatus(true);
     setUnderscore(correctArray);
     setGuess("");
   }
 
   return (
-    <div className="background">
-      <div className="top">
-        <img src={img} alt="Forca" data-identifier="game-image"/>
-        <button className="pick-word" onClick={PickWord} data-identifier="choose-word">
-          Escolher Palavra
-        </button>
-        <h1 className={wordClass} data-identifier="word">{underscore.map((l) => l)}</h1>
-      </div>
-      <div className="keyboard">
-        {letters.map((l, index) => (
-          <CreateLetter letter={l} key={index} />
-        ))}
-      </div>
-      <div className="guess">
-        Já sei a palavra!
-        <input
-          placeholder="Insira seu chute aqui. Ex: nação"
-          disabled={status}
-          value={guess}
-          onChange={(e) => setGuess(e.target.value)}
-          data-identifier="type-guess"
-        ></input>
-        <button disabled={status} onClick={CheckGuess} data-identifier="guess-button">
-          Chutar
-        </button>
-      </div>
-    </div>
+    <>
+      <GlobalStyle />
+      <Background>
+        <Top>
+          <Img src={img} alt="Forca" data-identifier="game-image" />
+          <PickButton onClick={PickWord} data-identifier="choose-word">
+            Escolher Palavra
+          </PickButton>
+          <Text color={wordColor} data-identifier="word">
+            {underscore.map((l) => l)}
+          </Text>
+        </Top>
+        <Keyboard>
+          {letters.map((l, index) => (
+            <CreateLetter letter={l} key={index} />
+          ))}
+        </Keyboard>
+        <Guess>
+          Já sei a palavra!
+          <InputBox
+            placeholder="Insira seu chute aqui. Ex: nação"
+            disabled={status}
+            value={guess}
+            onChange={(e) => setGuess(e.target.value)}
+            onKeyPress={(e) => (e.key === "Enter" ? CheckGuess() : null)}
+            data-identifier="type-guess"
+          ></InputBox>
+          <GuessButton
+            status={status}
+            disabled={status}
+            onClick={CheckGuess}
+            data-identifier="guess-button"
+          >
+            Chutar
+          </GuessButton>
+        </Guess>
+      </Background>
+    </>
   );
 }
+
+const GlobalButtonConfig = styled.button`
+  height: 40px;
+  border-radius: 5px;
+
+  font-family: "Roboto", sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+`;
+
+const Background = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  height: 100vh;
+`;
+
+const Top = styled.div`
+  position: relative;
+
+  width: 900px;
+  padding: 20px;
+`;
+
+const Img = styled.img`
+  width: 350px;
+`;
+
+const PickButton = styled(GlobalButtonConfig)`
+  position: absolute;
+  top: 50px;
+  right: 20px;
+
+  width: 170px;
+  background: #27ae60;
+  border: none;
+  box-shadow: 1px 1px 5px #27ae60;
+
+  color: #ffffff;
+`;
+
+const Text = styled.h1`
+  position: absolute;
+  bottom: 40px;
+  right: 20px;
+
+  font-family: "Roboto", sans-serif;
+  font-weight: 500;
+  font-size: 50px;
+  letter-spacing: 5px;
+  color: ${(props) => (props.color ? props.color : "#000000")};
+`;
+
+const Keyboard = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+
+  width: 650px;
+  margin-bottom: 20px;
+`;
+
+const LetterButton = styled(GlobalButtonConfig)`
+  width: 40px;
+  margin: 5px;
+  border: none;
+  background: ${(props) => (props.status ? "#9faab5" : "#e1ecf4")};
+  border: ${(props) => (props.status ? "none" : "1px solid #39739d")};
+  box-shadow: ${(props) => props.status ? "none" : "1px 1px 5px rgb(94, 94, 94)"};
+
+  color: ${(props) => (props.status ? "#54575c" : "#39739d")};
+
+  cursor: ${(props) => (props.status ? "default" : "pointer")};
+
+  &:hover{
+    filter: ${(props) => (props.status ? "brigthness(1)" : "brightness(0.9)")};
+  }
+`;
+
+const Guess = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  * {
+    margin: 0 10px;
+  }
+`;
+
+const InputBox = styled.input`
+  height: 35px;
+  width: 300px;
+  border-radius: 5px;
+  border: 1px solid #b8b8b8;
+  padding: 10px;
+
+  ::placeholder {
+    font-style: italic;
+  }
+`;
+
+const GuessButton = styled(GlobalButtonConfig)`
+  width: 65px;
+  background: ${(props) => (props.status ? "#9faab5" : "#e1ecf4")};
+  border: ${(props) => (props.status ? "none" : "1px solid #39739d")};
+  box-shadow: ${(props) => props.status ? "none" : "1px 1px 5px rgb(94, 94, 94)"};
+
+  color: ${(props) => (props.status ? "#54575c" : "#39739d")};
+
+  cursor: ${(props) => (props.status ? "default" : "pointer")};
+
+  &:hover{
+    filter: ${(props) => (props.status ? "brigthness(1)" : "brightness(0.9)")};
+  }
+`;
