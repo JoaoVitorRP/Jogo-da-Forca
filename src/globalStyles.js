@@ -137,6 +137,13 @@ const GlobalStyle = createGlobalStyle`
     }
 
     button {
+        height: 40px;
+        border-radius: 5px;
+
+        font-family: "Roboto", sans-serif;
+        font-weight: 700;
+        font-size: 15px;
+        
         cursor: pointer;
     }
 `;
