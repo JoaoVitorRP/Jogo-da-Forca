@@ -23,9 +23,11 @@ export default function App() {
   const [word, setWord] = useState([]);
   const [noAccent, setNoAccent] = useState([]);
   const [underscore, setUnderscore] = useState([]);
-  const [clickEnabled, setClickEnabled] = useState(false);
   const [mistakes, setMistakes] = useState(1);
   const [img, setImg] = useState(Forca0);
+  const [status, setStatus] = useState(true);
+  const [clicked, setClicked] = useState([]);
+  const [enableClass, setEnableClass] = useState("disabled")
 
   const wordIndex = getRandomInt(0, words.length);
 
@@ -33,7 +35,9 @@ export default function App() {
     const correctWord = words[wordIndex];
     const wordArray = Array.from(correctWord);
 
-    let noAccentWord = correctWord.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    let noAccentWord = correctWord
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
     noAccentWord = Array.from(noAccentWord);
     setNoAccent(noAccentWord);
 
@@ -41,15 +45,16 @@ export default function App() {
 
     setWord(wordArray);
     setUnderscore(underscoreArray);
-
-    setClickEnabled(true);
+    setStatus(false);
+    setEnableClass("enabled");
+    setMistakes(1);
+    setImg(Forca0);
+    setClicked([]);
   }
 
   function CheckLetter(letter) {
     const noAccentCopy = [...noAccent];
     const underscoreCopy = [...underscore];
-    letter = letter.toLowerCase();
-    console.log(letter);
 
     if (noAccentCopy.includes(letter)) {
       noAccentCopy.map((l, index) => {
@@ -75,20 +80,23 @@ export default function App() {
       }
     }
 
+    const clickedCopy = [...clicked, letter];
+    setClicked(clickedCopy);
+
     setUnderscore(underscoreCopy);
   }
 
   function CreateLetter(props) {
+    let letter = props.letter
+    letter = letter.toLowerCase();
+
     return (
       <button
-        className="letter"
-        onClick={
-          clickEnabled
-            ? () => {
-                CheckLetter(props.letter);
-              }
-            : () => {}
-        }
+        className={clicked.includes(letter) ? "disabled" : enableClass}
+        onClick={() => {
+          CheckLetter(letter);
+        }}
+        disabled={clicked.includes(letter) ? true : status}
       >
         {props.letter}
       </button>
@@ -99,19 +107,14 @@ export default function App() {
     <div className="background">
       <div className="top">
         <img src={img} alt="Forca" />
-        <button
-          className="pick-word"
-          onClick={() => {
-            PickWord();
-          }}
-        >
+        <button className="pick-word" onClick={PickWord}>
           Escolher Palavra
         </button>
         <h1>{underscore.map((l) => l)}</h1>
       </div>
       <div className="keyboard">
         {letters.map((l, index) => (
-          <CreateLetter letter={l} key={index} />
+          <CreateLetter letter={l} key={index}/>
         ))}
       </div>
       <div className="guess">
