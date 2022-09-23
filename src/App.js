@@ -29,6 +29,7 @@ export default function App() {
   const [guess, setGuess] = useState("");
   const [correct, setCorrect] = useState("");
   const [wordColor, setWordColor] = useState("#000000");
+  const [backgroundColor, setBackgroundColor] = useState("#ffffff");
 
   const wordIndex = getRandomInt(0, words.length);
 
@@ -53,7 +54,10 @@ export default function App() {
     setMistakes(1);
     setImg(Forca0);
     setClicked([]);
-    setWordColor("#000000");
+
+    backgroundColor === "#ffffff"
+      ? setWordColor("#000000")
+      : setWordColor("#ffffff");
   }
 
   function CheckLetter(letter) {
@@ -130,15 +134,29 @@ export default function App() {
     setGuess("");
   }
 
+  function DarkMode() {
+    setBackgroundColor("#565656");
+    underscore.includes(`_`) ? (setWordColor("#ffffff")) : setWordColor(wordColor);
+  }
+
+  function LightMode() {
+    setBackgroundColor("#ffffff");
+    underscore.includes(`_`) ? setWordColor("#000000") : setWordColor(wordColor);
+  }
+
   return (
     <>
       <GlobalStyle />
-      <Background>
+      <Background color={backgroundColor}>
         <Top>
           <Img src={img} alt="Forca" data-identifier="game-image" />
           <PickButton onClick={PickWord} data-identifier="choose-word">
             Escolher Palavra
           </PickButton>
+          <Modes>
+            <ModeButton onClick={DarkMode}>Dark Mode</ModeButton>
+            <ModeButton onClick={LightMode}>Light Mode</ModeButton>
+          </Modes>
           <Text color={wordColor} data-identifier="word">
             {underscore.map((l) => l)}
           </Text>
@@ -148,7 +166,7 @@ export default function App() {
             <CreateLetter letter={l} key={index} />
           ))}
         </Keyboard>
-        <Guess>
+        <Guess color={backgroundColor}>
           Já sei a palavra!
           <InputBox
             placeholder="Insira seu chute aqui. Ex: nação"
@@ -187,6 +205,8 @@ const Background = styled.div`
   align-items: center;
 
   height: 100vh;
+
+  background: ${(props) => (props.color ? props.color : "#ffffff")};
 `;
 
 const Top = styled.div`
@@ -213,6 +233,30 @@ const PickButton = styled(GlobalButtonConfig)`
   color: #ffffff;
 `;
 
+const Modes = styled.div`
+  position: absolute;
+
+  top: 130px;
+  right: 20px;
+
+  display: flex;
+  flex-direction: column;
+`;
+
+const ModeButton = styled(GlobalButtonConfig)`
+  width: 100px;
+  margin-top: 10px;
+  background: #e1ecf4;
+  border: 1px solid #39739d;
+  box-shadow: 1px 1px 5px #1c1c1c;
+
+  color: #39739d;
+
+  &:hover {
+    filter: brightness(0.8);
+  }
+`;
+
 const Text = styled.h1`
   position: absolute;
   bottom: 40px;
@@ -236,17 +280,17 @@ const Keyboard = styled.div`
 const LetterButton = styled(GlobalButtonConfig)`
   width: 40px;
   margin: 5px;
-  border: none;
   background: ${(props) => (props.status ? "#9faab5" : "#e1ecf4")};
   border: ${(props) => (props.status ? "none" : "1px solid #39739d")};
-  box-shadow: ${(props) => props.status ? "none" : "1px 1px 5px rgb(94, 94, 94)"};
+  box-shadow: ${(props) =>
+    props.status ? "none" : "1px 1px 5px #1c1c1c"};
 
   color: ${(props) => (props.status ? "#54575c" : "#39739d")};
 
   cursor: ${(props) => (props.status ? "default" : "pointer")};
 
-  &:hover{
-    filter: ${(props) => (props.status ? "brigthness(1)" : "brightness(0.9)")};
+  &:hover {
+    filter: ${(props) => (props.status ? "brigthness(1)" : "brightness(0.8)")};
   }
 `;
 
@@ -254,6 +298,8 @@ const Guess = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+
+  color: ${(props) => (props.color === "#ffffff" ? "#000000" : "#ffffff")};
 
   * {
     margin: 0 10px;
@@ -266,23 +312,13 @@ const InputBox = styled.input`
   border-radius: 5px;
   border: 1px solid #b8b8b8;
   padding: 10px;
+  background: #fafafa;
 
   ::placeholder {
     font-style: italic;
   }
 `;
 
-const GuessButton = styled(GlobalButtonConfig)`
+const GuessButton = styled(LetterButton)`
   width: 65px;
-  background: ${(props) => (props.status ? "#9faab5" : "#e1ecf4")};
-  border: ${(props) => (props.status ? "none" : "1px solid #39739d")};
-  box-shadow: ${(props) => props.status ? "none" : "1px 1px 5px rgb(94, 94, 94)"};
-
-  color: ${(props) => (props.status ? "#54575c" : "#39739d")};
-
-  cursor: ${(props) => (props.status ? "default" : "pointer")};
-
-  &:hover{
-    filter: ${(props) => (props.status ? "brigthness(1)" : "brightness(0.9)")};
-  }
 `;
