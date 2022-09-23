@@ -51,6 +51,18 @@ h1 {
   letter-spacing: 5px;
 }
 
+.black{
+  color: #000000;
+}
+
+.green{
+  color: #27ae60;
+}
+
+.red{
+  color: #FF0000;
+}
+
 .keyboard {
   display: flex;
   flex-wrap: wrap;
@@ -75,6 +87,7 @@ h1 {
   border: none;
   background: #e1ecf4;
   border: 1px solid #39739d;
+  box-shadow: 1px 1px 5px rgb(94, 94, 94);
 
   color: #39739d;
 }
@@ -110,7 +123,7 @@ h1 {
 }
 
 input {
-  height: 30px;
+  height: 35px;
   width: 300px;
   border-radius: 5px;
   border: 1px solid #b8b8b8;

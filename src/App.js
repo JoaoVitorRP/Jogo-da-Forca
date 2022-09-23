@@ -28,11 +28,15 @@ export default function App() {
   const [status, setStatus] = useState(true);
   const [clicked, setClicked] = useState([]);
   const [enableClass, setEnableClass] = useState("disabled")
+  const [guess, setGuess] = useState('');
+  const [correct, setCorrect] = useState('');
+  const [wordClass, setWordClass] = useState("black");
 
   const wordIndex = getRandomInt(0, words.length);
 
   function PickWord() {
     const correctWord = words[wordIndex];
+    setCorrect(correctWord);
     const wordArray = Array.from(correctWord);
 
     let noAccentWord = correctWord
@@ -41,15 +45,18 @@ export default function App() {
     noAccentWord = Array.from(noAccentWord);
     setNoAccent(noAccentWord);
 
-    const underscoreArray = wordArray.map((l) => `_`);
+    const underscoreArray = wordArray.map(() => `_`);
 
     setWord(wordArray);
     setUnderscore(underscoreArray);
+
     setStatus(false);
     setEnableClass("enabled");
+
     setMistakes(1);
     setImg(Forca0);
     setClicked([]);
+    setWordClass("black");
   }
 
   function CheckLetter(letter) {
@@ -103,6 +110,23 @@ export default function App() {
     );
   }
 
+  function CheckGuess(){
+    const guessCopy = guess.toLowerCase();
+    const correctArray = Array.from(correct);
+    console.log(correct);
+
+    if (guessCopy === correct){
+      setWordClass("green");
+    }else{
+      setWordClass("red");
+      setImg(Forca6);
+    }
+
+    setEnableClass("disabled");
+    setStatus(true);
+    setUnderscore(correctArray);
+  }
+
   return (
     <div className="background">
       <div className="top">
@@ -110,7 +134,7 @@ export default function App() {
         <button className="pick-word" onClick={PickWord}>
           Escolher Palavra
         </button>
-        <h1>{underscore.map((l) => l)}</h1>
+        <h1 className={wordClass}>{underscore.map((l) => l)}</h1>
       </div>
       <div className="keyboard">
         {letters.map((l, index) => (
@@ -119,8 +143,8 @@ export default function App() {
       </div>
       <div className="guess">
         Já sei a palavra!
-        <input placeholder="Insira seu chute aqui"></input>
-        <button>Chutar</button>
+        <input placeholder="Insira seu chute aqui. Ex: nação" disabled={status} onChange={(e) => setGuess(e.target.value)}></input>
+        <button disabled={status} onClick={CheckGuess}>Chutar</button>
       </div>
     </div>
   );
